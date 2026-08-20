@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+.env
+.env.*
+!.env.example
+build/
+dist/
+*.egg-info/
+
+# Node/Vite
+node_modules/
+dist/
+dist-ssr/
+*.local
+.eslintcache
+
+# Databases & Docker
+.database/
+pgdata/
+
+# IDEs & System
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+.DS_Store
+Thumbs.db
