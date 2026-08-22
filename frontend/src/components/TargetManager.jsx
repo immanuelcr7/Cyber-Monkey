@@ -96,7 +96,7 @@ const TargetManager = ({ assessmentId, assessment, onTargetCountChange }) => {
       // Basic domain check
       const domainRegex = /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9](?:\.[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9])*$/;
       if (!domainRegex.test(val)) {
-        setErrorCallback('Invalid Target Value. Please provide a valid domain name syntax (e.g. example.com).');
+        setErrorCallback('Invalid target value. Please provide a valid domain name syntax (e.g. example.com).');
         return false;
       }
     } else if (form.target_type === 'IP Address') {
@@ -104,13 +104,13 @@ const TargetManager = ({ assessmentId, assessment, onTargetCountChange }) => {
       const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
       const ipv6Regex = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}(?:(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:(?:(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/;
       if (!ipv4Regex.test(val) && !ipv6Regex.test(val)) {
-        setErrorCallback('Invalid Target Value. Please provide a valid IPv4 or IPv6 address format (e.g. 192.168.1.1).');
+        setErrorCallback('Invalid target value. Please provide a valid IPv4 or IPv6 address format (e.g. 192.168.1.1).');
         return false;
       }
     } else if (form.target_type === 'URL') {
       const urlRegex = /^https?:\/\/[^\s$.?#].[^\s]*$/i;
       if (!urlRegex.test(val)) {
-        setErrorCallback('Invalid Target Value. Please provide a valid http/https URL format (e.g. https://example.com).');
+        setErrorCallback('Invalid target value. Please provide a valid http/https URL format (e.g. https://example.com).');
         return false;
       }
     }

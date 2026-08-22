@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getAssessment, updateAssessment, deleteAssessment } from '../services/api';
 import TargetManager from '../components/TargetManager';
+import ReconManager from '../components/ReconManager';
 
 const AssessmentWorkspace = () => {
   const { assessmentId } = useParams();
@@ -13,6 +14,7 @@ const AssessmentWorkspace = () => {
   const [notFound, setNotFound] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview'); // overview, recon
 
   // Edit Form State
   const [editForm, setEditForm] = useState({
@@ -275,83 +277,117 @@ const AssessmentWorkspace = () => {
           </button>
         </div>
 
+        {/* Workspace Tab Selector */}
+        {!isEditing && (
+          <div className="flex gap-2 border-b border-white/5 mb-8">
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`pb-3 px-4 text-xs tracking-wider uppercase font-bold border-b-2 transition-all cursor-pointer ${
+                activeTab === 'overview'
+                  ? 'border-teal-400 text-teal-400'
+                  : 'border-transparent text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              🎯 Targets Scoping
+            </button>
+            <button
+              onClick={() => setActiveTab('recon')}
+              className={`pb-3 px-4 text-xs tracking-wider uppercase font-bold border-b-2 transition-all cursor-pointer ${
+                activeTab === 'recon'
+                  ? 'border-teal-400 text-teal-400'
+                  : 'border-transparent text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              🔍 Reconnaissance
+            </button>
+          </div>
+        )}
+
         {/* View / Edit Views */}
         {!isEditing ? (
-          <div className="space-y-6">
-            
-            {/* Header Meta Block */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <h1 className="text-3xl font-black mb-1">{assessment.name}</h1>
-                <p className="text-slate-400 text-sm font-semibold">{assessment.organization || '—'}</p>
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="px-4 py-2 text-xs font-semibold rounded bg-teal-400 hover:bg-teal-300 text-[#090A0F] transition-all cursor-pointer"
-                >
-                  Edit Assessment
-                </button>
-                <button
-                  id="btn_delete_assessment"
-                  onClick={() => setShowDeleteModal(true)}
-                  className="px-4 py-2 text-xs font-semibold rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-all cursor-pointer"
-                >
-                  Delete Assessment
-                </button>
-              </div>
-            </div>
-
-            {/* Assessment Overview Section */}
-            <div className="p-6 rounded-2xl cyber-glass relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1.5 h-full bg-teal-400"></div>
-              <h2 className="text-lg font-bold mb-4 border-b border-white/5 pb-2 text-slate-200">Assessment Overview</h2>
+          activeTab === 'overview' ? (
+            <div className="space-y-6">
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm mb-6">
+              {/* Header Meta Block */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                  <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Organization</span>
-                  <span className="font-semibold text-slate-200">{assessment.organization || '—'}</span>
+                  <h1 className="text-3xl font-black mb-1">{assessment.name}</h1>
+                  <p className="text-slate-400 text-sm font-semibold">{assessment.organization || '—'}</p>
                 </div>
-                <div>
-                  <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Assessment Type</span>
-                  <span className="font-semibold text-slate-200">{assessment.assessment_type}</span>
-                </div>
-                <div>
-                  <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Status</span>
-                  <div className="mt-1">{getStatusBadge(assessment.status)}</div>
-                </div>
-                <div>
-                  <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Start Date</span>
-                  <span className="font-mono text-slate-300">{formatDate(assessment.start_date)}</span>
-                </div>
-                <div>
-                  <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">End Date</span>
-                  <span className="font-mono text-slate-300">{formatDate(assessment.end_date)}</span>
-                </div>
-                <div>
-                  <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Created Date</span>
-                  <span className="font-mono text-slate-300">{formatDate(assessment.created_at)}</span>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="px-4 py-2 text-xs font-semibold rounded bg-teal-400 hover:bg-teal-300 text-[#090A0F] transition-all cursor-pointer"
+                  >
+                    Edit Assessment
+                  </button>
+                  <button
+                    id="btn_delete_assessment"
+                    onClick={() => setShowDeleteModal(true)}
+                    className="px-4 py-2 text-xs font-semibold rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-all cursor-pointer"
+                  >
+                    Delete Assessment
+                  </button>
                 </div>
               </div>
 
-              <div className="border-t border-white/5 pt-4">
-                <span className="block text-xs text-slate-500 uppercase tracking-wider mb-2">Description</span>
-                <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">
-                  {assessment.description || 'No description provided for this assessment configuration.'}
-                </p>
+              {/* Assessment Overview Section */}
+              <div className="p-6 rounded-2xl cyber-glass relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-1.5 h-full bg-teal-400"></div>
+                <h2 className="text-lg font-bold mb-4 border-b border-white/5 pb-2 text-slate-200">Assessment Overview</h2>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm mb-6">
+                  <div>
+                    <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Organization</span>
+                    <span className="font-semibold text-slate-200">{assessment.organization || '—'}</span>
+                  </div>
+                  <div>
+                    <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Assessment Type</span>
+                    <span className="font-semibold text-slate-200">{assessment.assessment_type}</span>
+                  </div>
+                  <div>
+                    <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Status</span>
+                    <div className="mt-1">{getStatusBadge(assessment.status)}</div>
+                  </div>
+                  <div>
+                    <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Targets</span>
+                    <span className="font-mono text-teal-400 font-bold text-base">{assessment.target_count}</span>
+                  </div>
+                  <div>
+                    <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Start Date</span>
+                    <span className="font-mono text-slate-300">{formatDate(assessment.start_date)}</span>
+                  </div>
+                  <div>
+                    <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">End Date</span>
+                    <span className="font-mono text-slate-300">{formatDate(assessment.end_date)}</span>
+                  </div>
+                  <div>
+                    <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Created Date</span>
+                    <span className="font-mono text-slate-300">{formatDate(assessment.created_at)}</span>
+                  </div>
+                </div>
+
+                <div className="border-t border-white/5 pt-4">
+                  <span className="block text-xs text-slate-500 uppercase tracking-wider mb-2">Description</span>
+                  <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">
+                    {assessment.description || 'No description provided for this assessment configuration.'}
+                  </p>
+                </div>
               </div>
-            </div>
 
-            {/* Targets Section */}
-            <div className="p-6 rounded-2xl cyber-glass text-left">
-              <TargetManager 
-                assessmentId={assessmentId} 
-                assessment={assessment}
-                onTargetCountChange={fetchDetails} 
-              />
-            </div>
+              {/* Targets Section */}
+              <div className="p-6 rounded-2xl cyber-glass text-left">
+                <TargetManager 
+                  assessmentId={assessmentId} 
+                  assessment={assessment}
+                  onTargetCountChange={fetchDetails} 
+                />
+              </div>
 
-          </div>
+            </div>
+          ) : (
+            <ReconManager assessmentId={assessmentId} assessment={assessment} />
+          )
         ) : (
           
           /* Edit Assessment Form */

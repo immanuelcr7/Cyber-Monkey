@@ -1,5 +1,5 @@
 import os
-from typing import List, Union
+from typing import List, Union, Optional
 from pydantic import AnyHttpUrl, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -11,6 +11,18 @@ class Settings(BaseSettings):
     DATABASE_URL: str
     SECRET_KEY: str
     CORS_ORIGINS: Union[List[str], str] = []
+    
+    # DNS Resolver Settings
+    DNS_RESOLVER: Optional[str] = None
+    DNS_TIMEOUT: float = 2.0
+    
+    # theHarvester Settings
+    THEHARVESTER_PATH: str = "C:\\Tools\\theHarvester"
+    THEHARVESTER_TIMEOUT: float = 300.0
+    THEHARVESTER_SOURCES: str = "crtsh,certspotter"
+
+    # Shodan Settings
+    SHODAN_API_KEY: Optional[str] = None
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod

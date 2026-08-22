@@ -9,6 +9,12 @@ from app.schemas.target import (
     TargetUpdate,
     TargetResponse,
 )
+from app.schemas.recon import (
+    NmapPortResponse,
+    NmapScanCreate,
+    NmapScanResponse,
+    NmapStatusResponse,
+)
 
 __all__ = [
     "AssessmentCreate",
@@ -18,4 +24,8 @@ __all__ = [
     "TargetCreate",
     "TargetUpdate",
     "TargetResponse",
+    "NmapPortResponse",
+    "NmapScanCreate",
+    "NmapScanResponse",
+    "NmapStatusResponse",
 ]

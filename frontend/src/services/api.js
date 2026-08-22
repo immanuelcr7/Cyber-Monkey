@@ -68,4 +68,97 @@ export const deleteTarget = async (targetId) => {
   return response.data;
 };
 
+// Recon / Nmap API functions
+export const getNmapStatus = async () => {
+  const response = await api.get('/recon/nmap/status');
+  return response.data;
+};
+
+export const startNmapScan = async (assessmentId, targetId, scanProfile) => {
+  const response = await api.post(`/assessments/${assessmentId}/recon/nmap`, {
+    target_id: targetId,
+    scan_profile: scanProfile
+  });
+  return response.data;
+};
+
+export const getNmapScans = async (assessmentId) => {
+  const response = await api.get(`/assessments/${assessmentId}/recon/nmap`);
+  return response.data;
+};
+
+// Recon / Subfinder API functions
+export const getSubfinderStatus = async () => {
+  const response = await api.get('/recon/subfinder/status');
+  return response.data;
+};
+
+export const startSubfinderScan = async (assessmentId, targetId) => {
+  const response = await api.post(`/assessments/${assessmentId}/recon/subfinder`, {
+    target_id: targetId
+  });
+  return response.data;
+};
+
+export const getSubfinderScans = async (assessmentId) => {
+  const response = await api.get(`/assessments/${assessmentId}/recon/subfinder`);
+  return response.data;
+};
+
+// Recon / DNS API functions
+export const getDnsStatus = async () => {
+  const response = await api.get('/recon/dns/status');
+  return response.data;
+};
+
+export const startDnsScan = async (assessmentId, targetId) => {
+  const response = await api.post(`/assessments/${assessmentId}/recon/dns`, {
+    target_id: targetId
+  });
+  return response.data;
+};
+
+export const getDnsScans = async (assessmentId) => {
+  const response = await api.get(`/assessments/${assessmentId}/recon/dns`);
+  return response.data;
+};
+
+// Recon / theHarvester API functions
+export const getTheHarvesterStatus = async () => {
+  const response = await api.get('/recon/theharvester/status');
+  return response.data;
+};
+
+export const startTheHarvesterScan = async (assessmentId, targetId) => {
+  const response = await api.post(`/assessments/${assessmentId}/recon/theharvester`, {
+    target_id: targetId
+  });
+  return response.data;
+};
+
+export const getTheHarvesterScans = async (assessmentId) => {
+  const response = await api.get(`/assessments/${assessmentId}/recon/theharvester`);
+  return response.data;
+};
+
+
+// Recon / Shodan Public Intelligence API functions
+export const getShodanStatus = async () => {
+  const response = await api.get('/recon/shodan/status');
+  return response.data;
+};
+
+export const startShodanScan = async (assessmentId, targetId) => {
+  // Only send target_id - NEVER send an arbitrary IP to the backend
+  const response = await api.post(`/assessments/${assessmentId}/recon/shodan`, {
+    target_id: targetId
+  });
+  return response.data;
+};
+
+export const getShodanScans = async (assessmentId) => {
+  const response = await api.get(`/assessments/${assessmentId}/recon/shodan`);
+  return response.data;
+};
+
 export default api;

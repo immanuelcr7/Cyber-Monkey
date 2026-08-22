@@ -56,3 +56,61 @@ The server will be available at `http://localhost:8000`. You can visit:
 - **Root URL**: `http://localhost:8000/`
 - **Health Check**: `http://localhost:8000/api/health`
 - **API Docs (Swagger UI)**: `http://localhost:8000/docs`
+
+## Nmap Utility Setup
+This application requires **Nmap** to be installed on the machine hosting the backend server. Follow these installation steps based on your operating system:
+
+### 1. Linux (Ubuntu/Debian)
+Install Nmap using `apt`:
+```bash
+sudo apt update
+sudo apt install nmap -y
+```
+
+### 2. macOS
+Install Nmap using Homebrew:
+```bash
+brew install nmap
+```
+
+### 3. Windows
+1. Download the official Windows installer from [Nmap Download Page](https://nmap.org/download.html#windows).
+2. Run the `.exe` installer (e.g. `nmap-<version>-setup.exe`) and complete the wizard.
+3. Add the Nmap installation directory (typically `C:\Program Files (x86)\Nmap`) to your system's environment `Path` variable:
+   - Search for **Edit the system environment variables**.
+   - Click **Environment Variables...**.
+   - Select the **Path** variable under System Variables and click **Edit**.
+   - Click **New** and paste the path to your Nmap folder (e.g. `C:\Program Files (x86)\Nmap`).
+   - Save and restart your terminal.
+
+Verify the installation in a fresh terminal by running:
+```bash
+nmap --version
+```
+
+## Subfinder Utility Setup
+This application requires **Subfinder** to be installed on the machine hosting the backend server for passive subdomain discovery. Follow these installation steps based on your operating system:
+
+### 1. Pre-built Binaries (All Platforms)
+1. Download the latest release binary for your operating system from the official [Subfinder Releases Page](https://github.com/projectdiscovery/subfinder/releases).
+2. Extract the downloaded archive.
+3. Move the `subfinder` executable to a folder in your system's PATH.
+
+### 2. Using Go (Requires Go installed)
+Install Subfinder globally using:
+```bash
+go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+```
+Make sure `$GOPATH/bin` or `%USERPROFILE%\go\bin` is in your environment `Path` variable.
+
+### 3. macOS (Homebrew)
+Install using Homebrew:
+```bash
+brew install subfinder
+```
+
+Verify the installation in a fresh terminal by running:
+```bash
+subfinder -version
+```
+
