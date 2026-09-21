@@ -6,6 +6,8 @@ from app.models.recon import (
     ShodanScan, ShodanHost, ShodanService, ShodanVulnerability
 )
 
+from app.models.vulnerability import NucleiScan, NucleiFinding, NiktoScan, NiktoFinding
+
 __all__ = [
     "Assessment",
     "Target",
@@ -24,4 +26,9 @@ __all__ = [
     "ShodanHost",
     "ShodanService",
     "ShodanVulnerability",
+    "NucleiScan",
+    "NucleiFinding",
+    "NiktoScan",
+    "NiktoFinding",
 ]
+

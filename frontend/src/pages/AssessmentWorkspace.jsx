@@ -1,12 +1,39 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { getAssessment, updateAssessment, deleteAssessment } from '../services/api';
 import TargetManager from '../components/TargetManager';
 import ReconManager from '../components/ReconManager';
+import VulnerabilityManager from '../components/VulnerabilityManager';
 
 const AssessmentWorkspace = () => {
-  const { assessmentId } = useParams();
+  const { assessmentId, module } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Tab mapping for module sub-routes or query parameters
+  const getTabFromRoute = () => {
+    if (module) {
+      if (['reconnaissance', 'recon'].includes(module.toLowerCase())) return 'reconnaissance';
+      if (['network-scanning', 'scanning'].includes(module.toLowerCase())) return 'network-scanning';
+      if (['web-testing', 'web'].includes(module.toLowerCase())) return 'web-testing';
+      if (['vulnerabilities', 'vulns', 'vulnerability'].includes(module.toLowerCase())) return 'vulnerabilities';
+      if (['findings'].includes(module.toLowerCase())) return 'findings';
+      if (['ai-analysis', 'ai'].includes(module.toLowerCase())) return 'ai-analysis';
+      if (['reports'].includes(module.toLowerCase())) return 'reports';
+      if (['overview', 'targets'].includes(module.toLowerCase())) return 'overview';
+    }
+    const tabParam = searchParams.get('tab');
+    if (tabParam) {
+      if (['reconnaissance', 'recon'].includes(tabParam.toLowerCase())) return 'reconnaissance';
+      if (['network-scanning', 'scanning'].includes(tabParam.toLowerCase())) return 'network-scanning';
+      if (['web-testing', 'web'].includes(tabParam.toLowerCase())) return 'web-testing';
+      if (['vulnerabilities', 'vulns', 'vulnerability'].includes(tabParam.toLowerCase())) return 'vulnerabilities';
+      if (['findings'].includes(tabParam.toLowerCase())) return 'findings';
+      if (['ai-analysis', 'ai'].includes(tabParam.toLowerCase())) return 'ai-analysis';
+      if (['reports'].includes(tabParam.toLowerCase())) return 'reports';
+    }
+    return 'overview';
+  };
 
   const [assessment, setAssessment] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -14,7 +41,11 @@ const AssessmentWorkspace = () => {
   const [notFound, setNotFound] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview'); // overview, recon
+  const [activeTab, setActiveTab] = useState(getTabFromRoute());
+
+  useEffect(() => {
+    setActiveTab(getTabFromRoute());
+  }, [module, searchParams]);
 
   // Edit Form State
   const [editForm, setEditForm] = useState({
@@ -89,25 +120,14 @@ const AssessmentWorkspace = () => {
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
-
     const nameTrimmed = editForm.name.trim();
     if (!nameTrimmed) {
       setEditError('Assessment Name is required.');
       return;
     }
-
     if (!editForm.assessment_type) {
       setEditError('Assessment Type is required.');
       return;
-    }
-
-    if (editForm.start_date && editForm.end_date) {
-      const start = new Date(editForm.start_date);
-      const end = new Date(editForm.end_date);
-      if (end < start) {
-        setEditError('End Date must not be before Start Date.');
-        return;
-      }
     }
 
     try {
@@ -128,11 +148,7 @@ const AssessmentWorkspace = () => {
       setIsEditing(false);
       await fetchDetails();
     } catch (err) {
-      if (!err.response) {
-        setEditError('Backend connection unavailable. Please make sure the Cyber Monkey API is running.');
-      } else {
-        setEditError('Unable to update assessment.');
-      }
+      setEditError('Unable to update assessment.');
     } finally {
       setEditLoading(false);
     }
@@ -147,11 +163,7 @@ const AssessmentWorkspace = () => {
       navigate('/pentest/assessments');
     } catch (err) {
       setShowDeleteModal(false);
-      if (!err.response) {
-        setError('Backend connection unavailable. Please make sure the Cyber Monkey API is running.');
-      } else {
-        setError('Unable to delete assessment.');
-      }
+      setError('Unable to delete assessment.');
       setLoading(false);
     }
   };
@@ -186,19 +198,20 @@ const AssessmentWorkspace = () => {
     }
   };
 
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '—';
-    try {
-      const d = new Date(dateStr);
-      if (isNaN(d.getTime())) return dateStr;
-      return d.toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
-      });
-    } catch (e) {
-      return dateStr;
-    }
+  const tabs = [
+    { id: 'overview', label: '🎯 Overview & Targets', route: `/pentest/assessments/${assessmentId}` },
+    { id: 'reconnaissance', label: '🔍 Reconnaissance', route: `/pentest/assessments/${assessmentId}/reconnaissance` },
+    { id: 'network-scanning', label: '📡 Network Scanning', route: `/pentest/assessments/${assessmentId}/network-scanning` },
+    { id: 'web-testing', label: '🌐 Web Application Testing', route: `/pentest/assessments/${assessmentId}/web-testing` },
+    { id: 'vulnerabilities', label: '🛡️ Vulnerability Assessment', route: `/pentest/assessments/${assessmentId}/vulnerabilities` },
+    { id: 'findings', label: '🪲 Findings', route: `/pentest/assessments/${assessmentId}/findings` },
+    { id: 'ai-analysis', label: '🧠 AI Security Analysis', route: `/pentest/assessments/${assessmentId}/ai-analysis` },
+    { id: 'reports', label: '📄 Reports', route: `/pentest/assessments/${assessmentId}/reports` },
+  ];
+
+  const handleTabClick = (tab) => {
+    setActiveTab(tab.id);
+    navigate(tab.route);
   };
 
   if (loading && !showDeleteModal) {
@@ -208,41 +221,21 @@ const AssessmentWorkspace = () => {
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
-        <p className="text-slate-400 text-sm">Opening secure workspace environment...</p>
+        <p className="text-slate-400 text-sm">Opening assessment workspace...</p>
       </div>
     );
   }
 
-  if (notFound) {
+  if (notFound || !assessment) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#090A0F] text-slate-100">
         <div className="p-8 max-w-md w-full text-center cyber-glass rounded-2xl border border-rose-500/20 bg-rose-500/5">
           <div className="text-5xl mb-4">⚠️</div>
           <h3 className="text-2xl font-black mb-2 text-rose-400">Assessment Not Found</h3>
-          <p className="text-slate-400 text-sm mb-8">
-            The requested assessment could not be found.
-          </p>
+          <p className="text-slate-400 text-sm mb-8">The requested assessment record could not be located.</p>
           <button
             onClick={() => navigate('/pentest/assessments')}
             className="w-full py-2.5 bg-teal-400 hover:bg-teal-300 text-[#090A0F] font-bold rounded-lg text-sm transition-all"
-          >
-            Back to Assessments
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !assessment) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#090A0F] text-slate-100">
-        <div className="p-6 max-w-md w-full text-center cyber-glass rounded-2xl border border-rose-500/20 bg-rose-500/5">
-          <div className="text-4xl mb-4">⚠️</div>
-          <h3 className="text-xl font-bold mb-2">Workspace Error</h3>
-          <p className="text-slate-400 text-sm mb-6">{error || 'Assessment not found'}</p>
-          <button 
-            onClick={() => navigate('/pentest/assessments')} 
-            className="px-4 py-2 bg-white/5 border border-white/10 hover:bg-white/10 rounded-lg text-slate-200 text-sm"
           >
             Back to Assessments
           </button>
@@ -257,84 +250,90 @@ const AssessmentWorkspace = () => {
       {/* Decorative gradients */}
       <div className="absolute top-[-10%] left-[-10%] w-[35%] h-[35%] rounded-full bg-teal-500/5 blur-[120px] pointer-events-none"></div>
 
-      <div className="max-w-4xl mx-auto z-10 relative">
+      <div className="max-w-6xl mx-auto z-10 relative">
         
         {/* Navigation Breadcrumb */}
-        <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-6">
+        <div className="flex items-center justify-between mb-6 border-b border-white/5 pb-4">
           <div className="flex items-center gap-3">
             <Link to="/" className="w-8 h-8 rounded-lg bg-gradient-to-tr from-teal-400 to-indigo-500 flex items-center justify-center font-bold text-lg text-[#090A0F]">
               🐒
             </Link>
-            <span className="font-bold tracking-wider text-sm text-slate-400">
-              CYBER MONKEY &nbsp;/&nbsp; <Link to="/pentest/assessments" className="hover:text-white">ASSESSMENTS</Link> &nbsp;/&nbsp; <span className="text-white">DETAILS</span>
+            <span className="font-bold tracking-wider text-xs text-slate-400 uppercase">
+              CYBER MONKEY &nbsp;/&nbsp; <Link to="/pentest/assessments" className="hover:text-white">ASSESSMENTS</Link> &nbsp;/&nbsp; <span className="text-white font-mono">{assessment.name}</span>
             </span>
           </div>
           <button 
             onClick={() => navigate('/pentest/assessments')}
             className="text-xs text-teal-400 hover:underline"
           >
-            Back to Assessments
+            Back to Assessments List
           </button>
         </div>
 
-        {/* Workspace Tab Selector */}
+        {/* PROMINENT ASSESSMENT NAME HEADER (FIXED AT TOP ACROSS ALL TABS) */}
+        <div className="mb-6 pb-6 border-b border-white/5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              <h1 className="text-3xl md:text-4xl font-black text-slate-100 tracking-tight">
+                {assessment.name}
+              </h1>
+              {getStatusBadge(assessment.status)}
+            </div>
+            <p className="text-sm text-slate-400 font-medium">
+              {assessment.organization ? `${assessment.organization} • ` : ''}
+              <span className="text-teal-300 font-semibold">{assessment.assessment_type}</span> Assessment
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsEditing(true)}
+              className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 border border-white/10 transition-all cursor-pointer"
+            >
+              Edit Assessment
+            </button>
+            <button
+              id="btn_delete_assessment"
+              onClick={() => setShowDeleteModal(true)}
+              className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-all cursor-pointer"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+
+        {/* ASSESSMENT MODULE NAVIGATION TABS */}
         {!isEditing && (
-          <div className="flex gap-2 border-b border-white/5 mb-8">
-            <button
-              onClick={() => setActiveTab('overview')}
-              className={`pb-3 px-4 text-xs tracking-wider uppercase font-bold border-b-2 transition-all cursor-pointer ${
-                activeTab === 'overview'
-                  ? 'border-teal-400 text-teal-400'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              🎯 Targets Scoping
-            </button>
-            <button
-              onClick={() => setActiveTab('recon')}
-              className={`pb-3 px-4 text-xs tracking-wider uppercase font-bold border-b-2 transition-all cursor-pointer ${
-                activeTab === 'recon'
-                  ? 'border-teal-400 text-teal-400'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              🔍 Reconnaissance
-            </button>
+          <div className="flex items-center gap-1 border-b border-white/5 mb-8 overflow-x-auto pb-1 scrollbar-none">
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabClick(tab)}
+                  className={`py-3 px-4 text-xs font-bold whitespace-nowrap border-b-2 transition-all cursor-pointer rounded-t-lg ${
+                    isActive
+                      ? 'border-teal-400 text-teal-300 bg-white/5'
+                      : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/[0.02]'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
         )}
 
-        {/* View / Edit Views */}
+        {/* TAB CONTENTS (RENDERED BELOW PROMINENT HEADER & TABS) */}
         {!isEditing ? (
           activeTab === 'overview' ? (
             <div className="space-y-6">
-              
-              {/* Header Meta Block */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                  <h1 className="text-3xl font-black mb-1">{assessment.name}</h1>
-                  <p className="text-slate-400 text-sm font-semibold">{assessment.organization || '—'}</p>
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="px-4 py-2 text-xs font-semibold rounded bg-teal-400 hover:bg-teal-300 text-[#090A0F] transition-all cursor-pointer"
-                  >
-                    Edit Assessment
-                  </button>
-                  <button
-                    id="btn_delete_assessment"
-                    onClick={() => setShowDeleteModal(true)}
-                    className="px-4 py-2 text-xs font-semibold rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-all cursor-pointer"
-                  >
-                    Delete Assessment
-                  </button>
-                </div>
-              </div>
-
-              {/* Assessment Overview Section */}
+              {/* Overview Summary Box */}
               <div className="p-6 rounded-2xl cyber-glass relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-1.5 h-full bg-teal-400"></div>
-                <h2 className="text-lg font-bold mb-4 border-b border-white/5 pb-2 text-slate-200">Assessment Overview</h2>
+                <h2 className="text-lg font-bold mb-4 border-b border-white/5 pb-2 text-slate-200">
+                  Assessment Overview
+                </h2>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm mb-6">
                   <div>
@@ -350,240 +349,168 @@ const AssessmentWorkspace = () => {
                     <div className="mt-1">{getStatusBadge(assessment.status)}</div>
                   </div>
                   <div>
-                    <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Targets</span>
+                    <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Scope Targets</span>
                     <span className="font-mono text-teal-400 font-bold text-base">{assessment.target_count}</span>
                   </div>
                   <div>
                     <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Start Date</span>
-                    <span className="font-mono text-slate-300">{formatDate(assessment.start_date)}</span>
+                    <span className="font-mono text-slate-300">{assessment.start_date || '—'}</span>
                   </div>
                   <div>
                     <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">End Date</span>
-                    <span className="font-mono text-slate-300">{formatDate(assessment.end_date)}</span>
-                  </div>
-                  <div>
-                    <span className="block text-xs text-slate-500 uppercase tracking-wider mb-1">Created Date</span>
-                    <span className="font-mono text-slate-300">{formatDate(assessment.created_at)}</span>
+                    <span className="font-mono text-slate-300">{assessment.end_date || '—'}</span>
                   </div>
                 </div>
 
-                <div className="border-t border-white/5 pt-4">
-                  <span className="block text-xs text-slate-500 uppercase tracking-wider mb-2">Description</span>
-                  <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">
-                    {assessment.description || 'No description provided for this assessment configuration.'}
-                  </p>
-                </div>
+                {assessment.description && (
+                  <div className="border-t border-white/5 pt-4">
+                    <span className="block text-xs text-slate-500 uppercase tracking-wider mb-2">Description</span>
+                    <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">{assessment.description}</p>
+                  </div>
+                )}
               </div>
 
-              {/* Targets Section */}
-              <div className="p-6 rounded-2xl cyber-glass text-left">
+              {/* Target Scoping Manager */}
+              <div className="p-6 rounded-2xl cyber-glass">
                 <TargetManager 
                   assessmentId={assessmentId} 
                   assessment={assessment}
                   onTargetCountChange={fetchDetails} 
                 />
               </div>
-
             </div>
-          ) : (
-            <ReconManager assessmentId={assessmentId} assessment={assessment} />
-          )
-        ) : (
-          
-          /* Edit Assessment Form */
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-2xl font-black mb-1">Edit Assessment</h1>
-              <p className="text-slate-400 text-sm">Update the metadata and parameters of this assessment.</p>
+          ) : activeTab === 'reconnaissance' ? (
+            <div className="p-6 rounded-2xl cyber-glass">
+              <ReconManager assessmentId={assessmentId} />
             </div>
-
-            {editError && (
-              <div className="p-4 bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm rounded-xl">
-                <strong>Update Alert:</strong> {editError}
+          ) : activeTab === 'network-scanning' ? (
+            <div className="p-6 rounded-2xl cyber-glass">
+              <div className="mb-6 pb-4 border-b border-white/5">
+                <h2 className="text-xl font-bold text-slate-100 mb-1">Network Scanning Workspace</h2>
+                <p className="text-xs text-slate-400">Scoped Network Port & Service Discovery for {assessment.name}</p>
               </div>
-            )}
-
-            <form onSubmit={handleEditSubmit} className="p-6 rounded-2xl cyber-glass space-y-6">
-              
-              {/* Assessment Name */}
+              <ReconManager assessmentId={assessmentId} />
+            </div>
+          ) : activeTab === 'web-testing' ? (
+            <div className="p-6 rounded-2xl cyber-glass">
+              <div className="mb-6 pb-4 border-b border-white/5">
+                <h2 className="text-xl font-bold text-slate-100 mb-1">Web Application Testing Workspace</h2>
+                <p className="text-xs text-slate-400">Nikto Web Server & API Security Assessment for {assessment.name}</p>
+              </div>
+              <VulnerabilityManager assessmentId={assessmentId} />
+            </div>
+          ) : activeTab === 'vulnerabilities' ? (
+            <div className="p-6 rounded-2xl cyber-glass">
+              <VulnerabilityManager assessmentId={assessmentId} />
+            </div>
+          ) : activeTab === 'findings' ? (
+            <div className="p-6 rounded-2xl cyber-glass text-center py-16">
+              <div className="text-4xl mb-3">🪲</div>
+              <h3 className="text-lg font-bold mb-1 text-slate-200">Assessment Findings Directory</h3>
+              <p className="text-xs text-slate-400 max-w-md mx-auto">
+                Consolidated vulnerabilities and findings for <strong className="text-teal-300">{assessment.name}</strong> will be cataloged here.
+              </p>
+            </div>
+          ) : activeTab === 'ai-analysis' ? (
+            <div className="p-6 rounded-2xl cyber-glass text-center py-16">
+              <div className="text-4xl mb-3">🧠</div>
+              <h3 className="text-lg font-bold mb-1 text-slate-200">AI Security Analysis Workspace</h3>
+              <p className="text-xs text-slate-400 max-w-md mx-auto">
+                Secure AI log & vulnerability pattern intelligence analysis for <strong className="text-teal-300">{assessment.name}</strong>.
+              </p>
+            </div>
+          ) : activeTab === 'reports' ? (
+            <div className="p-6 rounded-2xl cyber-glass text-center py-16">
+              <div className="text-4xl mb-3">📄</div>
+              <h3 className="text-lg font-bold mb-1 text-slate-200">Penetration Test Report Generator</h3>
+              <p className="text-xs text-slate-400 max-w-md mx-auto">
+                Generate executive summary and technical penetration test reports for <strong className="text-teal-300">{assessment.name}</strong>.
+              </p>
+            </div>
+          ) : null
+        ) : (
+          /* Edit Assessment View */
+          <div className="p-6 rounded-2xl cyber-glass border border-white/5 max-w-2xl mx-auto">
+            <h2 className="text-xl font-bold mb-6 border-b border-white/5 pb-3">Edit Assessment Details</h2>
+            <form onSubmit={handleEditSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                  Assessment Name *
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+                  Assessment Name <span className="text-rose-400">*</span>
                 </label>
                 <input
                   type="text"
                   name="name"
-                  required
-                  placeholder="e.g. ACME External Security Assessment"
                   value={editForm.name}
                   onChange={handleEditChange}
-                  disabled={editLoading}
-                  className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-colors"
+                  className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-teal-400"
                 />
               </div>
 
-              {/* Organization */}
               <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                  Organization
-                </label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Organization</label>
                 <input
                   type="text"
                   name="organization"
-                  placeholder="e.g. ACME Technologies"
                   value={editForm.organization}
                   onChange={handleEditChange}
-                  disabled={editLoading}
-                  className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-colors"
+                  className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-teal-400"
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {/* Type dropdown */}
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                    Assessment Type *
-                  </label>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Assessment Type</label>
                   <select
                     name="assessment_type"
                     value={editForm.assessment_type}
                     onChange={handleEditChange}
-                    disabled={editLoading}
-                    className="w-full px-4 py-2.5 rounded-lg bg-[#0F111E] border border-white/10 text-slate-100 focus:outline-none focus:border-teal-500 transition-colors cursor-pointer"
+                    className="w-full px-3 py-2 rounded-lg bg-[#0F111A] border border-white/10 text-white text-sm focus:outline-none focus:border-teal-400"
                   >
-                    {types.map((t) => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
+                    {types.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
-
-                {/* Status dropdown */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                    Status *
-                  </label>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Status</label>
                   <select
                     name="status"
                     value={editForm.status}
                     onChange={handleEditChange}
-                    disabled={editLoading}
-                    className="w-full px-4 py-2.5 rounded-lg bg-[#0F111E] border border-white/10 text-slate-100 focus:outline-none focus:border-teal-500 transition-colors cursor-pointer"
+                    className="w-full px-3 py-2 rounded-lg bg-[#0F111A] border border-white/10 text-white text-sm focus:outline-none focus:border-teal-400"
                   >
-                    {statuses.map((s) => (
-                      <option key={s.value} value={s.value}>{s.label}</option>
-                    ))}
+                    {statuses.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                   </select>
                 </div>
               </div>
 
-              {/* Description */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  rows="3"
-                  placeholder="Provide a brief summary of scope guidelines or authorization details."
-                  value={editForm.description}
-                  onChange={handleEditChange}
-                  disabled={editLoading}
-                  className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-colors resize-none"
-                />
-              </div>
-
-              {/* Dates Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                    Start Date
-                  </label>
-                  <input
-                    type="date"
-                    name="start_date"
-                    value={editForm.start_date}
-                    onChange={handleEditChange}
-                    disabled={editLoading}
-                    className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-colors"
-                  />
+              {editError && (
+                <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs">
+                  {editError}
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                    End Date
-                  </label>
-                  <input
-                    type="date"
-                    name="end_date"
-                    value={editForm.end_date}
-                    onChange={handleEditChange}
-                    disabled={editLoading}
-                    className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-colors"
-                  />
-                </div>
-              </div>
+              )}
 
-              {/* Actions Button Grid */}
-              <div className="pt-4 border-t border-white/5 flex gap-4">
+              <div className="flex justify-end gap-3 pt-4 border-t border-white/5">
                 <button
                   type="button"
-                  onClick={() => {
-                    setIsEditing(false);
-                    setEditError('');
-                  }}
-                  className="flex-1 py-3 text-center rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-sm transition-all duration-300"
+                  onClick={() => setIsEditing(false)}
+                  className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 text-xs font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={editLoading}
-                  className="flex-1 py-3 rounded-lg bg-teal-400 hover:bg-teal-300 text-[#090A0F] font-bold text-sm shadow-lg shadow-teal-500/10 cursor-pointer flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-50"
+                  className="px-5 py-2 rounded-lg bg-teal-400 hover:bg-teal-300 text-[#090A0F] text-xs font-bold"
                 >
-                  {editLoading && (
-                    <svg className="animate-spin h-4 w-4 text-[#090A0F]" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                  )}
-                  {editLoading ? 'Saving Changes...' : 'Save Changes'}
+                  {editLoading ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
-
             </form>
           </div>
         )}
 
       </div>
-
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="max-w-md w-full p-6 rounded-2xl cyber-glass border border-rose-500/20 bg-[#0F111E] shadow-2xl">
-            <h3 className="text-xl font-bold text-rose-400 mb-2">Delete this assessment?</h3>
-            <p className="text-slate-400 text-sm mb-6 leading-relaxed">
-              All associated assessment data may be removed. This action cannot be undone.
-            </p>
-            <div className="flex gap-4">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="flex-1 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 text-sm font-semibold transition-all cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmedDelete}
-                className="flex-1 py-2.5 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-sm font-semibold transition-all cursor-pointer"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
     </div>
   );
 };
 
 export default AssessmentWorkspace;
-

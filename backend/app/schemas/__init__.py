@@ -16,6 +16,18 @@ from app.schemas.recon import (
     NmapStatusResponse,
 )
 
+from app.schemas.vulnerability import (
+    NucleiStatusResponse,
+    NucleiScanCreate,
+    NucleiFindingResponse,
+    NucleiScanResponse,
+    NiktoStatusResponse,
+    NiktoScanCreate,
+    NiktoFindingResponse,
+    NiktoScanSummary,
+    NiktoScanResponse,
+)
+
 __all__ = [
     "AssessmentCreate",
     "AssessmentUpdate",
@@ -28,4 +40,15 @@ __all__ = [
     "NmapScanCreate",
     "NmapScanResponse",
     "NmapStatusResponse",
+    "NucleiStatusResponse",
+    "NucleiScanCreate",
+    "NucleiFindingResponse",
+    "NucleiScanResponse",
+    "NiktoStatusResponse",
+    "NiktoScanCreate",
+    "NiktoFindingResponse",
+    "NiktoScanSummary",
+    "NiktoScanResponse",
 ]
+
+

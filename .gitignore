@@ -22,6 +22,8 @@ dist-ssr/
 # Databases & Docker
 .database/
 pgdata/
+nikto/
+
 
 # IDEs & System
 .idea/

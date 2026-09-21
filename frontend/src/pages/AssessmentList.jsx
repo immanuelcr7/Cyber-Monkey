@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { getAssessments } from '../services/api';
 
 const AssessmentList = () => {
@@ -7,6 +7,9 @@ const AssessmentList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const targetTab = searchParams.get('tab');
 
   const fetchAssessments = async () => {
     try {
@@ -99,6 +102,18 @@ const AssessmentList = () => {
           )}
         </div>
 
+        {/* Target Module Notice if redirected from dashboard */}
+        {targetTab && (
+          <div className="mb-6 p-4 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-300 text-sm flex items-center justify-between">
+            <span>
+              📌 <strong>Module Selected:</strong> Select an assessment below to open the{' '}
+              <strong className="uppercase font-mono text-teal-200">
+                {targetTab === 'recon' ? 'Reconnaissance & Scanning' : 'Vulnerability Assessment'}
+              </strong> workspace.
+            </span>
+          </div>
+        )}
+
         {/* Error State */}
         {error && (
           <div className="p-4 bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm rounded-xl mb-6">
@@ -122,7 +137,7 @@ const AssessmentList = () => {
             <div className="text-5xl mb-4">📂</div>
             <h3 className="text-xl font-bold mb-2">No assessments yet</h3>
             <p className="text-slate-400 text-sm max-w-sm mb-8">
-              Create your first penetration testing assessment to begin.
+              Create your first penetration testing assessment to begin testing.
             </p>
             <button 
               id="btn_create_assessment_empty"
@@ -173,7 +188,12 @@ const AssessmentList = () => {
                     <span>{a.end_date || '—'}</span>
                   </div>
                   <button 
-                    onClick={() => navigate(`/pentest/assessments/${a.id}`)}
+                    onClick={() => {
+                      const openPath = targetTab 
+                        ? `/pentest/assessments/${a.id}?tab=${targetTab}`
+                        : `/pentest/assessments/${a.id}`;
+                      navigate(openPath);
+                    }}
                     className="w-full py-2.5 text-xs font-bold rounded-lg bg-teal-400 hover:bg-teal-300 text-[#090A0F] cursor-pointer transition-all duration-300 text-center block shadow-sm shadow-teal-500/5"
                   >
                     Open Assessment
@@ -190,4 +210,3 @@ const AssessmentList = () => {
 };
 
 export default AssessmentList;
-
