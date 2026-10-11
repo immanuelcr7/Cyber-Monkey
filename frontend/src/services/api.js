@@ -274,6 +274,295 @@ export const runStandaloneReconScan = async (target, tool = 'theHarvester', auth
   return response.data;
 };
 
+// ==========================================
+// SOC ANALYST API
+// ==========================================
+export const getSocStatus = async () => {
+  const response = await api.get('/soc/status');
+  return response.data;
+};
+
+export const syncWazuhAlerts = async () => {
+  const response = await api.post('/soc/wazuh/sync');
+  return response.data;
+};
+
+export const getSocAlerts = async (params = {}) => {
+  const response = await api.get('/soc/alerts', { params });
+  return response.data;
+};
+
+export const createSocAlert = async (data) => {
+  const response = await api.post('/soc/alerts', data);
+  return response.data;
+};
+
+export const getSocAlert = async (alertId) => {
+  const response = await api.get(`/soc/alerts/${alertId}`);
+  return response.data;
+};
+
+export const updateSocAlert = async (alertId, data) => {
+  const response = await api.patch(`/soc/alerts/${alertId}`, data);
+  return response.data;
+};
+
+export const addSocAlertNote = async (alertId, data) => {
+  const response = await api.post(`/soc/alerts/${alertId}/notes`, data);
+  return response.data;
+};
+
+export const getSocIncidents = async (params = {}) => {
+  const response = await api.get('/soc/incidents', { params });
+  return response.data;
+};
+
+export const createSocIncident = async (data) => {
+  const response = await api.post('/soc/incidents', data);
+  return response.data;
+};
+
+export const getSocIncident = async (incidentId) => {
+  const response = await api.get(`/soc/incidents/${incidentId}`);
+  return response.data;
+};
+
+export const updateSocIncident = async (incidentId, data) => {
+  const response = await api.patch(`/soc/incidents/${incidentId}`, data);
+  return response.data;
+};
+
+export const addSocIncidentNote = async (incidentId, data) => {
+  const response = await api.post(`/soc/incidents/${incidentId}/notes`, data);
+  return response.data;
+};
+
+export const getSocAuditLogs = async () => {
+  const response = await api.get('/soc/audit-logs');
+  return response.data;
+};
+
+// ==========================================
+// OSINT WORKSPACE API
+// ==========================================
+export const getOsintToolsStatus = async () => {
+  const response = await api.get('/osint/tools/status');
+  return response.data;
+};
+
+export const getOsintInvestigations = async (params = {}) => {
+  const response = await api.get('/osint/investigations', { params });
+  return response.data;
+};
+
+export const createOsintInvestigation = async (data) => {
+  const response = await api.post('/osint/investigations', data);
+  return response.data;
+};
+
+export const getOsintInvestigation = async (invId) => {
+  const response = await api.get(`/osint/investigations/${invId}`);
+  return response.data;
+};
+
+export const updateOsintInvestigation = async (invId, data) => {
+  const response = await api.patch(`/osint/investigations/${invId}`, data);
+  return response.data;
+};
+
+export const runOsintScan = async (invId, data) => {
+  const response = await api.post(`/osint/investigations/${invId}/scan`, data);
+  return response.data;
+};
+
+export const addOsintNote = async (invId, data) => {
+  const response = await api.post(`/osint/investigations/${invId}/notes`, data);
+  return response.data;
+};
+
+export const exportOsintInvestigation = async (invId) => {
+  const response = await api.get(`/osint/investigations/${invId}/export`);
+  return response.data;
+};
+
+// ==========================================
+// MALWARE ANALYSIS WORKSPACE API
+// ==========================================
+export const getMalwareStatus = async () => {
+  const response = await api.get('/malware/status');
+  return response.data;
+};
+
+export const getMalwareJobs = async (params = {}) => {
+  const response = await api.get('/malware/jobs', { params });
+  return response.data;
+};
+
+export const uploadMalwareSample = async (formData) => {
+  const response = await api.post('/malware/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+  return response.data;
+};
+
+export const getMalwareJob = async (jobId) => {
+  const response = await api.get(`/malware/jobs/${jobId}`);
+  return response.data;
+};
+
+export const addMalwareNote = async (jobId, data) => {
+  const response = await api.post(`/malware/jobs/${jobId}/notes`, data);
+  return response.data;
+};
+
+export const exportMalwareReport = async (jobId) => {
+  const response = await api.get(`/malware/jobs/${jobId}/export`);
+  return response.data;
+};
+
+// ==========================================
+// DIGITAL FORENSICS WORKSPACE API
+// ==========================================
+export const getForensicsStatus = async () => {
+  const response = await api.get('/forensics/status');
+  return response.data;
+};
+
+export const getForensicCases = async (params = {}) => {
+  const response = await api.get('/forensics/cases', { params });
+  return response.data;
+};
+
+export const createForensicCase = async (data) => {
+  const response = await api.post('/forensics/cases', data);
+  return response.data;
+};
+
+export const getForensicCase = async (caseId) => {
+  const response = await api.get(`/forensics/cases/${caseId}`);
+  return response.data;
+};
+
+export const updateForensicCase = async (caseId, data) => {
+  const response = await api.patch(`/forensics/cases/${caseId}`, data);
+  return response.data;
+};
+
+export const acquireEvidence = async (caseId, formData) => {
+  const response = await api.post(`/forensics/cases/${caseId}/evidence`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+  return response.data;
+};
+
+export const verifyEvidenceIntegrity = async (evidenceId) => {
+  const response = await api.post(`/forensics/evidence/${evidenceId}/verify-integrity`);
+  return response.data;
+};
+
+export const addChainOfCustody = async (evidenceId, data) => {
+  const response = await api.post(`/forensics/evidence/${evidenceId}/custody`, data);
+  return response.data;
+};
+
+export const addForensicTimelineEvent = async (caseId, data) => {
+  const response = await api.post(`/forensics/cases/${caseId}/timeline`, data);
+  return response.data;
+};
+
+export const addForensicNote = async (caseId, data) => {
+  const response = await api.post(`/forensics/cases/${caseId}/notes`, data);
+  return response.data;
+};
+
+export const exportForensicCaseJson = async (caseId) => {
+  const response = await api.get(`/forensics/cases/${caseId}/export/json`);
+  return response.data;
+};
+
+export const exportForensicTimelineCsv = async (caseId) => {
+  const response = await api.get(`/forensics/cases/${caseId}/export/timeline-csv`, {
+    responseType: 'blob'
+  });
+  return response.data;
+};
+
+// ==========================================
+// NETWORK MONITORING WORKSPACE API
+// ==========================================
+export const getNetworkHealthSummary = async () => {
+  const response = await api.get('/network-monitoring/health-summary');
+  return response.data;
+};
+
+export const getNetworkTelemetryStatus = async () => {
+  const response = await api.get('/network-monitoring/telemetry/status');
+  return response.data;
+};
+
+export const getNetworkAssets = async (params = {}) => {
+  const response = await api.get('/network-monitoring/assets', { params });
+  return response.data;
+};
+
+export const createNetworkAsset = async (data) => {
+  const response = await api.post('/network-monitoring/assets', data);
+  return response.data;
+};
+
+export const getNetworkAsset = async (assetId) => {
+  const response = await api.get(`/network-monitoring/assets/${assetId}`);
+  return response.data;
+};
+
+export const updateNetworkAsset = async (assetId, data) => {
+  const response = await api.patch(`/network-monitoring/assets/${assetId}`, data);
+  return response.data;
+};
+
+export const deleteNetworkAsset = async (assetId) => {
+  const response = await api.delete(`/network-monitoring/assets/${assetId}`);
+  return response.data;
+};
+
+export const addNetworkService = async (assetId, data) => {
+  const response = await api.post(`/network-monitoring/assets/${assetId}/services`, data);
+  return response.data;
+};
+
+export const checkAssetAvailability = async (assetId) => {
+  const response = await api.post(`/network-monitoring/assets/${assetId}/check`);
+  return response.data;
+};
+
+export const getNetworkEvents = async (params = {}) => {
+  const response = await api.get('/network-monitoring/events', { params });
+  return response.data;
+};
+
+export const discoverAssetsNmap = async (targetValue, authConfirmed = true) => {
+  const response = await api.post(`/network-monitoring/discover-nmap?target_value=${encodeURIComponent(targetValue)}&authorization_confirmed=${authConfirmed}`);
+  return response.data;
+};
+
+// ==========================================
+// CENTRAL INTEGRATIONS & AI ASSISTANT API
+// ==========================================
+export const getAllIntegrationsStatus = async () => {
+  const response = await api.get('/integrations/status');
+  return response.data;
+};
+
+export const getAiStatus = async () => {
+  const response = await api.get('/ai/status');
+  return response.data;
+};
+
+export const analyzeWithAi = async (data) => {
+  const response = await api.post('/ai/analyze', data);
+  return response.data;
+};
+
 export default api;
 
 

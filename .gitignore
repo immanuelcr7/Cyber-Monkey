@@ -22,7 +22,14 @@ dist-ssr/
 # Databases & Docker
 .database/
 pgdata/
+*.db
+*.sqlite
+*.sqlite3
 nikto/
+
+# Uploaded Artifacts & Evidence Storage
+backend/storage/
+storage/
 
 
 # IDEs & System

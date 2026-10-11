@@ -24,6 +24,26 @@ class Settings(BaseSettings):
     # Shodan Settings
     SHODAN_API_KEY: Optional[str] = None
 
+    # Wazuh SOC Integration Settings
+    WAZUH_API_URL: Optional[str] = None
+    WAZUH_API_USER: Optional[str] = None
+    WAZUH_API_PASSWORD: Optional[str] = None
+    WAZUH_VERIFY_SSL: bool = False
+
+    # Storage Paths
+    MALWARE_STORAGE_PATH: str = "storage/malware_samples"
+    FORENSICS_STORAGE_PATH: str = "storage/forensics_evidence"
+
+    # AI Cyber Assistant Settings
+    AI_PROVIDER: str = "none"
+    OPENAI_API_KEY: Optional[str] = None
+    GEMINI_API_KEY: Optional[str] = None
+    AI_MODEL: Optional[str] = None
+
+    # Network Telemetry Settings
+    ZEEK_LOG_PATH: Optional[str] = None
+    SURICATA_LOG_PATH: Optional[str] = None
+
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:

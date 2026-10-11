@@ -10,11 +10,26 @@ import StandaloneReconnaissance from './pages/StandaloneReconnaissance';
 import StandaloneWebTesting from './pages/StandaloneWebTesting';
 import StandaloneVulnerabilities from './pages/StandaloneVulnerabilities';
 
+import SocWorkspace from './pages/SocWorkspace';
+import OsintWorkspace from './pages/OsintWorkspace';
+import MalwareWorkspace from './pages/MalwareWorkspace';
+import ForensicsWorkspace from './pages/ForensicsWorkspace';
+import NetworkMonitoringWorkspace from './pages/NetworkMonitoringWorkspace';
+
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
+        
+        {/* Cybersecurity Operating System Workspaces */}
+        <Route path="/soc" element={<SocWorkspace />} />
+        <Route path="/osint" element={<OsintWorkspace />} />
+        <Route path="/malware-analysis" element={<MalwareWorkspace />} />
+        <Route path="/digital-forensics" element={<ForensicsWorkspace />} />
+        <Route path="/network-monitoring" element={<NetworkMonitoringWorkspace />} />
+
+        {/* Penetration Testing Workspace (Preserved) */}
         <Route path="/pentest" element={<PentestLanding />} />
         
         {/* Standalone Quick Scanning Routes (Mode 1) */}
